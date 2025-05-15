@@ -4,11 +4,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { 
-  FiCalendar, 
+  FiUsers, 
   FiChevronLeft, 
   FiChevronRight,
   FiClipboard,
-  FiUsers,
 } from "react-icons/fi";
 import { cn } from "@/lib/utils"; // shadcn/ui utility
 import { Button } from "@/components/ui/button";
@@ -20,21 +19,21 @@ export default function SideNav() {
   const pathname = usePathname();
 
   const navItems = [
-    {
-      name: 'Attendance Logs',
-      href: '/admin/attendance-logs',
-      icon: <FiCalendar className="h-[18px] w-[18px]" />,
-    },
     // {
-    //   name: 'Employee Management',
-    //   href: '/employees-management',
-    //   icon: <FiUsers className="h-[18px] w-[18px]" />,
+    //   name: 'Attendance Logs',
+    //   href: '/admin/attendance-logs',
+    //   icon: <FiCalendar className="h-[18px] w-[18px]" />,
     // },
     {
-      name: 'Lists',
-      href: '/admin/lists',
-      icon: <FiClipboard className="h-[18px] w-[18px]" />,
+      name: 'Employee Management',
+      href: '/admin/employees-management',
+      icon: <FiUsers className="h-[18px] w-[18px]" />,
     },
+    // {
+    //   name: 'Lists',
+    //   href: '/admin/lists',
+    //   icon: <FiClipboard className="h-[18px] w-[18px]" />,
+    // },
   ];
 
   return (
