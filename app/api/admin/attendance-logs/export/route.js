@@ -1,17 +1,13 @@
 import { executeQuery } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-// Fetch attendance logs with employee details
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
 
     // Parse query parameters
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const offset = (page - 1) * limit;
     const search = searchParams.get('search') || '';
-    const logType = searchParams.get('log_type') || 'ALL';
+    const logType = searchParams.get('log_type') || '';
     const startDate = searchParams.get('start_date') || '';
     const endDate = searchParams.get('end_date') || '';
 
@@ -31,7 +27,6 @@ export async function GET(req) {
     } else if (logType === 'OUT') {
       conditions.push("l.out_time IS NOT NULL");
     }
-    // For 'ALL', don't add any condition
 
     // Add date range filters
     if (startDate) {
@@ -49,14 +44,11 @@ export async function GET(req) {
       ? "WHERE " + conditions.join(" AND ") 
       : "";
 
-    // Add pagination values
-    values.push(limit, offset);
-
-    // Query to fetch logs with pagination
+    // Query to fetch logs for export
     const query = `
       SELECT
-        l.id, l.ashima_id, e.name, e.department_id,
-        d.name AS department, l.log_type,
+        l.ashima_id, e.name, d.name AS department, 
+        DATE(l.in_time) AS log_date,
         l.in_time, l.out_time
       FROM
         attendance_logs l
@@ -66,39 +58,49 @@ export async function GET(req) {
         departments d ON e.department_id = d.id
       ${whereClause}
       ORDER BY l.in_time DESC
-      LIMIT ? OFFSET ?
     `;
 
     const logs = await executeQuery({ query, values });
 
-    // Count total records for pagination
-    const countConditions = conditions.length > 0 
-      ? "WHERE " + conditions.join(" AND ") 
-      : "";
-    const countValues = values.slice(0, values.length - 2); // Remove limit and offset
-
-    const countQuery = `
-      SELECT COUNT(*) as total
-      FROM attendance_logs l
-      LEFT JOIN employees e ON e.ashima_id = l.ashima_id
-      LEFT JOIN departments d ON e.department_id = d.id
-      ${countConditions}
-    `;
-
-    const countResult = await executeQuery({ query: countQuery, values: countValues });
-    const total = countResult[0].total;
-
-    return NextResponse.json({ 
-      data: logs,
-      total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit) 
+    // Generate CSV content
+    const headers = ["Ashima ID", "Name", "Department", "Date", "Time In", "Time Out"];
+    
+    let csvContent = headers.join(",") + "\n";
+    
+    logs.forEach(log => {
+      const formatDate = (date) => {
+        if (!date) return "";
+        return new Date(date).toLocaleDateString();
+      };
+      
+      const formatTime = (datetime) => {
+        if (!datetime) return "";
+        return new Date(datetime).toLocaleTimeString();
+      };
+      
+      const row = [
+        log.ashima_id || "",
+        (log.name || "").replace(/,/g, " "), // Replace commas in names
+        (log.department || "").replace(/,/g, " "), // Replace commas in department names
+        formatDate(log.log_date),
+        formatTime(log.in_time),
+        formatTime(log.out_time)
+      ];
+      
+      csvContent += row.join(",") + "\n";
     });
-  } catch (err) {
-    console.error("Failed to fetch attendance logs:", err);
+
+    // Return CSV as a downloadable file
+    return new Response(csvContent, {
+      headers: {
+        "Content-Type": "text/csv",
+        "Content-Disposition": `attachment; filename="attendance_logs_${new Date().toISOString().split('T')[0]}.csv"`
+      }
+    });
+  } catch (error) {
+    console.error("Failed to export attendance logs:", error);
     return NextResponse.json(
-      { message: `Failed to fetch attendance logs: ${err.message}` },
+      { message: "Failed to export attendance logs" },
       { status: 500 }
     );
   }
