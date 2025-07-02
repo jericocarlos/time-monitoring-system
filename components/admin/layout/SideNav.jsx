@@ -197,7 +197,7 @@ export default function SideNav({ collapsed }) {
                 transition={{ duration: 0.2 }}
                 className="text-center text-xs text-slate-400"
               >
-                <p className="font-semibold">RFID Attendance System</p>
+                <p className="font-semibold">Time Tracking System</p>
                 <p>&copy; {new Date().getFullYear()}</p>
                 <p className="mt-1 text-blue-400">v2.0.0</p>
               </motion.div>

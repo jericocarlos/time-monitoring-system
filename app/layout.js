@@ -1,8 +1,8 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'RFID Attendance System',
-  description: 'Track employee attendance using RFID technology',
+  title: 'Time Tracking System',
+  description: 'Track employee time efficiently',
 };
 
 export default function RootLayout({ children }) {
