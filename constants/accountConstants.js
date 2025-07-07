@@ -4,8 +4,8 @@
 export const ACCOUNT_ROLES = [
   { id: "superadmin", name: "Super Admin" },
   { id: "admin", name: "Admin" },
-  { id: "security", name: "Security" },
-  { id: "hr", name: "HR" }
+  { id: "agent", name: "Agent" },
+  { id: "teamleader", name: "Team Leader" }
 ];
 
 /**
@@ -23,10 +23,6 @@ export const ACCOUNT_COLUMNS = [
  * Validation schema for account forms
  */
 export const ACCOUNT_FORM_VALIDATION = {
-  username: {
-    required: "Username is required",
-    minLength: { value: 3, message: "Username must be at least 3 characters" }
-  },
   password: {
     required: "Password is required",
     minLength: { value: 8, message: "Password must be at least 8 characters" }
@@ -34,7 +30,6 @@ export const ACCOUNT_FORM_VALIDATION = {
   name: {
     required: "Full name is required"
   },
-  // Email validation removed
   role: {
     required: "Role is required"
   }

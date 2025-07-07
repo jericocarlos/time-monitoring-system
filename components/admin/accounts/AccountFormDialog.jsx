@@ -10,6 +10,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Label } from '@/components/ui/label';
+import { Controller } from 'react-hook-form';
 import {
   Form,
   FormControl,
@@ -29,12 +31,16 @@ import {
 import { ACCOUNT_FORM_VALIDATION } from "@/constants/accountConstants";
 
 export default function AccountFormDialog({
+  control,
   open,
   onOpenChange,
   account,
   onSubmit,
   availableRoles = [],
+  campaigns = [],
+  positions = [],
   canManageSuperAdmin = false,
+  loadingOptions = false,
 }) {
   const isEditing = !!account;
   const isSuperAdmin = account?.role === "superadmin";
@@ -49,10 +55,11 @@ export default function AccountFormDialog({
   // Initialize form with react-hook-form
   const form = useForm({
     defaultValues: {
-      username: "",
+      email: "", // Added email field
       password: "",
       name: "",
       employeeId: "", // Added employee ID field
+      campaign: "", // Added campaign field
       role: "",
     },
   });
@@ -61,19 +68,21 @@ export default function AccountFormDialog({
   useEffect(() => {
     if (account) {
       form.reset({
-        username: account.username || "",
+        email: account.email || "",
         // Don't fill password field when editing
         password: "",
         name: account.name || "",
         employeeId: account.employeeId || "", // Include employee ID
+        campaign: account.campaign || "",
         role: account.role || "",
       });
     } else {
       form.reset({
-        username: "",
+        email: "",
         password: "",
         name: "",
         employeeId: "", // Reset employee ID
+        campaign: "",
         role: "",
       });
     }
@@ -107,26 +116,6 @@ export default function AccountFormDialog({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              {/* Username Field */}
-              <FormField
-                control={form.control}
-                name="username"
-                rules={ACCOUNT_FORM_VALIDATION.username}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="Enter username"
-                        disabled={isEditing} // Username can't be changed when editing
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               {/* Employee ID (Ashima ID) Field */}
               <FormField
                 control={form.control}
@@ -149,21 +138,17 @@ export default function AccountFormDialog({
                 )}
               />
 
-              {/* Password Field */}
+              {/* Email Address Field */}
               <FormField
                 control={form.control}
-                name="password"
-                rules={isEditing ? {} : ACCOUNT_FORM_VALIDATION.password}
+                name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Password {isEditing && "(Leave blank to keep unchanged)"}
-                    </FormLabel>
+                    <FormLabel>Email Address</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type="password"
-                        placeholder={isEditing ? "••••••••" : "Enter password"}
+                        placeholder="Enter email address"
                       />
                     </FormControl>
                     <FormMessage />
@@ -187,24 +172,77 @@ export default function AccountFormDialog({
                 )}
               />
 
-              {/* Role Field */}
-              <FormField
-                control={form.control}
-                name="role"
-                rules={ACCOUNT_FORM_VALIDATION.role}
-                render={({ field }) => (
-                  <FormItem className="col-span-2">
-                    <FormLabel>Role</FormLabel>
+              {/* Campaign Field */}
+              <div className="space-y-2">
+                <Label htmlFor="campaign" className="text-sm font-medium">
+                  Campaign
+                </Label>
+                <Controller
+                  name="campaign_id"
+                  control={form.control}
+                  render={({ field }) => (
                     <Select
-                      value={field.value}
                       onValueChange={field.onChange}
-                      disabled={isEditing && isSuperAdmin && !canManageSuperAdmin}
+                      value={field.value || ''}
+                      disabled={loadingOptions}
                     >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select role" />
-                        </SelectTrigger>
-                      </FormControl>
+                      <SelectTrigger 
+                        id="campaign"
+                        aria-label="Select campaign"
+                      >
+                        <SelectValue placeholder={
+                          loadingOptions ? 'Loading campaigns...' : 'Select campaign'
+                        } />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {campaigns.length === 0 && !loadingOptions ? (
+                          <SelectItem value="no-campaigns" disabled>
+                            No campaigns available
+                          </SelectItem>
+                        ) : (
+                          campaigns.map((camp) => (
+                            <SelectItem 
+                              key={camp.id} 
+                              value={camp.id.toString()}
+                              title={camp.name}
+                            >
+                              {camp.name}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+    
+              {/* User Type / Role */}
+              <div className="space-y-2">
+                <Label htmlFor="user" className="text-sm font-medium">
+                  User Type / Role
+                </Label>
+                <Controller
+                  name="role_id"
+                  control={control}
+                  rules={ACCOUNT_FORM_VALIDATION.role}
+                  render={({ field }) => (
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || ''}
+                      disabled={loadingOptions}
+                    >
+                      <SelectTrigger 
+                        id="role"
+                        aria-label="Select role"
+                        className="w-full"
+                      >
+                        <SelectValue 
+                          placeholder={
+                            loadingOptions ? 'Loading roles...' : 'Select role'
+                          }
+                          className="truncate"
+                        />
+                      </SelectTrigger>
                       <SelectContent>
                         {availableRoles.map((role) => (
                           <SelectItem key={role.id} value={role.id}>
@@ -213,6 +251,27 @@ export default function AccountFormDialog({
                         ))}
                       </SelectContent>
                     </Select>
+                  )}
+                />
+              </div>
+
+              {/* Password Field */}
+              <FormField
+                control={form.control}
+                name="password"
+                rules={isEditing ? {} : ACCOUNT_FORM_VALIDATION.password}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Password {isEditing && "(Leave blank to keep unchanged)"}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="password"
+                        placeholder={isEditing ? "••••••••" : "Enter password"}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

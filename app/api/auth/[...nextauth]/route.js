@@ -10,14 +10,16 @@ async function getUserByIdentifier(identifier) {
       SELECT 
         id, 
         name, 
-        username, 
-        employee_id, 
+        email, 
+        employee_id,
+        campaign, 
         password, 
         role,
+        last_login,
         created_at,
         updated_at
       FROM admin_users 
-      WHERE username = ? OR employee_id = ?
+      WHERE email = ? OR employee_id = ?
     `;
     
     const results = await executeQuery({
@@ -58,7 +60,7 @@ export const authOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        identifier: { label: "Username or Ashima ID", type: "text" },
+        identifier: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
@@ -92,8 +94,9 @@ export const authOptions = {
           return {
             id: user.id.toString(),
             name: user.name,
-            username: user.username,
+            email: user.email,
             employeeId: user.employee_id,
+            campaign: user.campaign,
             role: user.role,
           };
         } catch (error) {
@@ -110,7 +113,7 @@ export const authOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.username = user.username;
+        token.email = user.email;
         token.employeeId = user.employeeId;
         
         // Store the user's role directly from the database
@@ -123,8 +126,9 @@ export const authOptions = {
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id;
-        session.user.username = token.username;
+        session.user.email = token.email;
         session.user.employeeId = token.employeeId;
+        session.user.campaign = token.campaign;
         session.user.role = token.role;
       }
       return session;

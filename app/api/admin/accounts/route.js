@@ -28,7 +28,7 @@ export async function GET(request) {
 
     // Add search condition
     if (search) {
-      conditions.push('(name LIKE ? OR username LIKE ? OR employee_id LIKE ?)');
+      conditions.push('(name LIKE ? OR email LIKE ? OR employee_id LIKE ?)');
       values.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
@@ -53,7 +53,8 @@ export async function GET(request) {
       SELECT 
         id, 
         name, 
-        username, 
+        email,
+        campaign,
         employee_id as employeeId, 
         role, 
         last_login as lastLogin,
@@ -74,7 +75,8 @@ export async function GET(request) {
     const formattedAccounts = accounts.map(account => ({
       id: account.id,
       name: account.name,
-      username: account.username,
+      email: account.email,
+      campaign: account.campaign,
       employeeId: account.employeeId,
       role: account.role,
       lastLogin: account.lastLogin,
@@ -118,12 +120,12 @@ export async function POST(request) {
 
   try {
     // Validate required fields
-    if (!body.username || !body.password || !body.name || !body.role || !body.employeeId) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
-    }
+    // if (!body.password || !body.name || !body.role || !body.employeeId) {
+    //   return NextResponse.json(
+    //     { error: 'Missing required fields' },
+    //     { status: 400 }
+    //   );
+    // }
 
     // Hash password
     const salt = await bcrypt.genSalt(10);
@@ -133,15 +135,16 @@ export async function POST(request) {
     // Insert new account
     const query = `
       INSERT INTO admin_users 
-        (name, username, employee_id, password, role) 
-      VALUES (?, ?, ?, ?, ?)
+        (name, email, campaign, employee_id, password, role) 
+      VALUES (?, ?, ?, ?, ?, ?)
     `;
 
     const result = await executeQuery({
       query,
       values: [
         body.name,
-        body.username,
+        body.email,
+        body.campaign,
         body.employeeId,
         hashedPassword,
         body.role
@@ -159,7 +162,7 @@ export async function POST(request) {
     // Handle duplicate entry error
     if (error.code === 'ER_DUP_ENTRY') {
       return NextResponse.json(
-        { error: 'Username or Employee ID already exists' },
+        { error: 'Email or Employee ID already exists' },
         { status: 409 }
       );
     }

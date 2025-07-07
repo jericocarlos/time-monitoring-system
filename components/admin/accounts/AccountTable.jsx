@@ -26,7 +26,7 @@ import { useState } from "react";
 
 // Updated column definitions without email
 const ACCOUNT_COLUMNS = [
-  { id: "username", header: "Username" },
+  { id: "employeeId", header: "Ashima ID" },
   { id: "name", header: "Full Name" },
   { id: "role", header: "Role" },
   { id: "lastLogin", header: "Last Login" },
@@ -125,15 +125,15 @@ export default function AccountTable({
           ) : (
             accounts.map((account) => (
               <TableRow key={account.id}>
-                <TableCell className="font-medium">{account.username}</TableCell>
+                <TableCell className="font-medium">{account.employeeId}</TableCell>
                 <TableCell>{account.name}</TableCell>
                 {/* Email cell removed */}
                 <TableCell>
                   <Badge className={getRoleBadgeStyle(account.role)}>
                     {account.role === "superadmin"
                       ? "Super Admin"
-                      : account.role === "hr"
-                      ? "HR"
+                      : account.role === "teamleader"
+                      ? "Team Leader"
                       : account.role.charAt(0).toUpperCase() + account.role.slice(1)}
                   </Badge>
                 </TableCell>

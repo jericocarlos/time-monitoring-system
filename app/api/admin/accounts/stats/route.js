@@ -27,13 +27,13 @@ export async function GET(request) {
     const adminResult = await executeQuery({ query: adminQuery });
     const admin = adminResult[0].count;
 
-    const securityQuery = `SELECT COUNT(*) as count FROM admin_users WHERE role = 'security'`;
-    const securityResult = await executeQuery({ query: securityQuery });
-    const security = securityResult[0].count;
+    const agentQuery = `SELECT COUNT(*) as count FROM admin_users WHERE role = 'agent'`;
+    const agentResult = await executeQuery({ query: agentQuery });
+    const agent = agentResult[0].count;
 
-    const hrQuery = `SELECT COUNT(*) as count FROM admin_users WHERE role = 'hr'`;
-    const hrResult = await executeQuery({ query: hrQuery });
-    const hr = hrResult[0].count;
+    const tlQuery = `SELECT COUNT(*) as count FROM admin_users WHERE role = 'teamleader'`;
+    const tlResult = await executeQuery({ query: tlQuery });
+    const teamleader = tlResult[0].count;
 
     // Get newly created accounts (last 30 days)
     const recentQuery = `
@@ -48,8 +48,8 @@ export async function GET(request) {
       total,
       superadmin,
       admin,
-      security,
-      hr,
+      agent,
+      teamleader,
       recentAccounts
     });
   } catch (error) {

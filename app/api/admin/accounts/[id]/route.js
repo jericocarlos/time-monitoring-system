@@ -21,7 +21,8 @@ export async function GET(request, { params }) {
       SELECT 
         id, 
         name, 
-        username, 
+        email,
+        campaign, 
         employee_id as employeeId, 
         role, 
         last_login as lastLogin,
@@ -46,7 +47,8 @@ export async function GET(request, { params }) {
     const formattedAccount = {
       id: account.id,
       name: account.name,
-      username: account.username,
+      email: account.email,
+      campaign: account.campaign,
       employeeId: account.employeeId,
       role: account.role,
       lastLogin: account.lastLogin,
@@ -110,8 +112,8 @@ export async function PUT(request, { params }) {
     }
 
     // Build update query - role is used directly from request
-    let updateFields = ['name = ?', 'role = ?'];
-    let values = [body.name, body.role];
+    let updateFields = ['name = ?', 'email = ?', 'role = ?'];
+    let values = [body.name, body.email, body.role];
 
     // Add password update if provided
     if (body.password) {
