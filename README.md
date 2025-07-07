@@ -1,6 +1,6 @@
-# RFID Attendance System
+# Time Tracking System
 
-A modern, comprehensive attendance management system built with Next.js that uses RFID technology for seamless employee check-in/check-out tracking. The system features a beautiful, responsive interface with real-time attendance monitoring, administrative controls, and comprehensive reporting capabilities.
+<!-- A modern, comprehensive attendance management system built with Next.js that uses RFID technology for seamless employee check-in/check-out tracking. The system features a beautiful, responsive interface with real-time attendance monitoring, administrative controls, and comprehensive reporting capabilities.
 
 ## 🚀 Features
 
@@ -228,4 +228,4 @@ For support and questions:
 - UI components from [Radix UI](https://www.radix-ui.com/)
 - Icons from [Lucide](https://lucide.dev/)
 - Styling with [Tailwind CSS](https://tailwindcss.com/)
-- Animations powered by [Framer Motion](https://www.framer.com/motion/)
+- Animations powered by [Framer Motion](https://www.framer.com/motion/) -->
